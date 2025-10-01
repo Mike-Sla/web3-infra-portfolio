@@ -1,0 +1,29 @@
+name: CI
+on:
+  push:
+  pull_request:
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install yamllint
+        run: pip install yamllint
+
+      - name: YAML Lint
+        run: yamllint .
+
+      # Terraform nur prüfen, wenn *.tf-Dateien existieren
+      - name: Setup Terraform
+        if: hashFiles('**/*.tf') != ''
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform fmt check
+        if: hashFiles('**/*.tf') != ''
+        run: terraform fmt -check -recursive
